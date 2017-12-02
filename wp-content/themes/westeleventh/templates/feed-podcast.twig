@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="{{ site.charset }}"?>
+<rss version="2.0"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+>
+
+<channel>
+  <title>{{ podcast.title|e }}</title>
+  <atom:link href="{{ function('self_link') }}" rel="self" type="application/rss+xml" />
+  <itunes:new-feed-url>{{ function('self_link') }}</itunes:new-feed-url>
+  <language>{{ site.language|e }}</language>
+  <itunes:author>{{ site.title|e }}</itunes:author>
+  {% if podcast.get_field('subtitle') %}
+  <itunes:subtitle>{{ podcast.get_field('subtitle')|e }}</itunes:subtitle>
+  {% endif %}
+  {% if podcast.description %}
+  <description>{{ podcast.description|e }}</description>
+  {% endif %}
+  <itunes:owner>
+    <itunes:name>{{ site.title|e }}</itunes:name>
+    <itunes:email>{{ site.admin_email|e }}</itunes:email>
+  </itunes:owner>
+  {% if podcast.get_field('image') %}
+  <itunes:image href="{{ TimberImage(podcast.get_field('image')).src }}" />
+  {% endif %}
+  {% if podcast.get_field('category') %}
+  <itunes:category text="{{ podcast.get_field('category')|e }}" />
+  {% endif %}
+  {% if podcast.get_field('explicit') %}
+  <itunes:explicit>{{ podcast.get_field('explicit')|e }}</itunes:explicit>
+  {% endif %}
+  <sy:updatePeriod>{{ function('apply_filters', 'rss_update_period', 'hourly') }}</sy:updatePeriod>
+  <sy:updateFrequency>{{ function('apply_filters', 'rss_update_frequency', '1') }}</sy:updateFrequency>
+
+  {% for post in posts %}
+  <item>
+    <title>{{ post.title|e }}</title>
+    <link>{{ post.link|e }}</link>
+    <guid isPermaLink="false">{{ post.guid|e }}</guid>
+    <pubDate>{{ post.date('r') }}</pubDate>
+    <itunes:author>{{ site.title|e }}</itunes:author>
+    <itunes:summary>{{ post.get_field('summary')|e }}</itunes:summary>
+    <itunes:duration>{{ post.get_audio_duration|e }}</itunes:duration>
+    <itunes:keywords>{{ post.tags | join(', ') }}</itunes:keywords>
+    {% if post.get_field('show_notes') %}
+    <content:encoded><![CDATA[{{ post.get_field('show_notes') }}]]></content:encoded>
+    {% endif %}
+    <enclosure length="{{ post.get_filesize|e }}" type="{{ post.get_mime_type|e }}" url="{{ post.get_podtrac_url|e  }}"/>
+  </item>
+  {% endfor %}
+</channel>
